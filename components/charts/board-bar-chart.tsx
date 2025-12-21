@@ -54,7 +54,7 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
           // Show absolute and percentage in tooltip (guard against missing payload fields)
           formatter={(value: number, name: string, props: any) => {
             const payload = props && props.payload ? props.payload : {};
-            const total = payload.count ?? ((payload.active ?? 0) + (payload.inactive ?? 0)) ?? 0;
+            const total = payload.count ?? ((payload.active ?? 0) + (payload.inactive ?? 0));
             const pct = total > 0 ? (value / total) * 100 : 0;
             return [`${value.toLocaleString()} (${pct.toFixed(1)}%)`, name];
           }}
