@@ -29,12 +29,23 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
   };
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={360}>
       <BarChart
         data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 14, right: 16, left: 10, bottom: 6 }}
       >
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <defs>
+          <linearGradient id="barActive" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(0,200,255,0.98)" />
+            <stop offset="100%" stopColor="rgba(0,200,255,0.6)" />
+          </linearGradient>
+          <linearGradient id="barInactive" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(200,255,0,0.85)" />
+            <stop offset="100%" stopColor="rgba(200,255,0,0.4)" />
+          </linearGradient>
+        </defs>
+
+        <CartesianGrid strokeDasharray="2 6" className="stroke-muted/20" />
         <XAxis
           dataKey="board"
           className="text-xs"
@@ -50,8 +61,8 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
             backgroundColor: 'hsl(var(--card))',
             border: '1px solid hsl(var(--border))',
             borderRadius: 'var(--radius)',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.25)'
           }}
-          // Show absolute and percentage in tooltip (guard against missing payload fields)
           formatter={(value: number, name: string, props: any) => {
             const payload = props && props.payload ? props.payload : {};
             const total = payload.count ?? ((payload.active ?? 0) + (payload.inactive ?? 0));
@@ -59,17 +70,24 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
             return [`${value.toLocaleString()} (${pct.toFixed(1)}%)`, name];
           }}
         />
-        <Legend />
-        {/* Use stacked bars so each board shows a single bar with active + inactive segments */}
+        <Legend verticalAlign="top" height={28} />
+
+        <Bar
+          dataKey="inactive"
+          fill="url(#barInactive)"
+          name="Inactive"
+          radius={0}
+          stackId="a"
+          animationDuration={500}
+        />
         <Bar
           dataKey="active"
-          fill="hsl(142, 76%, 36%)"
+          fill="url(#barActive)"
           name="Active"
-          radius={[4, 4, 0, 0]}
+          radius={0}
           stackId="a"
           animationDuration={500}
         >
-          {/* Percentage label inside active segment */}
           <LabelList
             dataKey="active"
             content={(props: any) => {
@@ -87,6 +105,7 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
                   y={cy}
                   fill="#fff"
                   fontSize={12}
+                  fontWeight={600}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   style={{ pointerEvents: 'none' }}
@@ -97,14 +116,6 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
             }}
           />
         </Bar>
-        <Bar
-          dataKey="inactive"
-          fill="hsl(var(--muted-foreground))"
-          name="Inactive"
-          radius={[0, 0, 4, 4]}
-          stackId="a"
-          animationDuration={500}
-        />
       </BarChart>
     </ResponsiveContainer>
   );

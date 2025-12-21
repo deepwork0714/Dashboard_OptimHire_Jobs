@@ -8,9 +8,10 @@ import { TrendingUp } from 'lucide-react';
 interface SummaryCardsProps {
   data: SummaryResponse | null;
   isLoading: boolean;
+  availableBoards?: number;
 }
 
-export function SummaryCards({ data, isLoading }: SummaryCardsProps) {
+export function SummaryCards({ data, isLoading, availableBoards = 0 }: SummaryCardsProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-3">
@@ -45,48 +46,42 @@ export function SummaryCards({ data, isLoading }: SummaryCardsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {data.total_jobs.toLocaleString()}
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
+            <p className="text-xs text-muted-foreground/70">As of {new Date(data.latest_date).toLocaleDateString()}</p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            As of {new Date(data.latest_date).toLocaleDateString()}
-          </p>
-        </CardContent>
+          <div className="text-right">
+            <div className="text-3xl font-extrabold text-primary">{data.total_jobs.toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground/70">Growth <span className="text-accent">+{(data.total_change ?? 0).toFixed(1)}%</span></div>
+          </div>
+        </CardHeader>
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {data.active_jobs.toLocaleString()}
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
+            <p className="text-xs text-muted-foreground/70">Currently active listings</p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Currently active listings
-          </p>
-        </CardContent>
+          <div className="text-right">
+            <div className="text-3xl font-extrabold text-primary">{data.active_jobs.toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground/70">Percent <span className="text-accent">{data.active_percentage.toFixed(2)}%</span></div>
+          </div>
+        </CardHeader>
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Percentage</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {data.active_percentage.toFixed(2)}%
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle className="text-sm font-medium">Boards</CardTitle>
+            <p className="text-xs text-muted-foreground/70">Available job boards</p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Percentage of active jobs
-          </p>
-        </CardContent>
+          <div className="text-right">
+            <div className="text-3xl font-extrabold text-primary">{availableBoards}</div>
+            <div className="text-xs text-muted-foreground/70">Active <span className="text-accent">{data.active_percentage.toFixed(2)}%</span></div>
+          </div>
+        </CardHeader>
       </Card>
     </div>
   );

@@ -19,6 +19,8 @@ interface JobBoardFiltersProps {
   isLoading?: boolean;
 }
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 export function JobBoardFilters({
   selectedDate,
   selectedBoard,
@@ -28,38 +30,56 @@ export function JobBoardFilters({
   isLoading = false,
 }: JobBoardFiltersProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 mb-6">
-      <div className="space-y-2">
-        <Label htmlFor="date-filter">Filter by Date</Label>
-        <Input
-          id="date-filter"
-          type="date"
-          value={selectedDate}
-          onChange={(e) => onDateChange(e.target.value)}
-          disabled={isLoading}
-          max={new Date().toISOString().split('T')[0]}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="board-filter">Filter by Job Board</Label>
-        <Select
-          value={selectedBoard || undefined}
-          onValueChange={onBoardChange}
-          disabled={isLoading}
-        >
-          <SelectTrigger id="board-filter">
-            <SelectValue placeholder="Select a job board" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableBoards.map((board) => (
-              <SelectItem key={board} value={board}>
-                {board}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle className="text-sm">Filters</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4 md:grid-cols-3 mb-2">
+          <div>
+            <Label htmlFor="date-filter">Filter by Date</Label>
+            <Input
+              id="date-filter"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => onDateChange(e.target.value)}
+              disabled={isLoading}
+              max={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="board-filter">Filter by Job Board</Label>
+            <Select
+              value={selectedBoard || undefined}
+              onValueChange={onBoardChange}
+              disabled={isLoading}
+            >
+              <SelectTrigger id="board-filter">
+                <SelectValue placeholder="Select a job board" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableBoards.map((board) => (
+                  <SelectItem key={board} value={board}>
+                    {board}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-end">
+            <button
+              type="button"
+              className="w-full rounded-md bg-accent px-3 py-2 text-sm text-accent-foreground"
+              onClick={() => onDateChange('')}
+            >
+              Clear Date
+            </button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

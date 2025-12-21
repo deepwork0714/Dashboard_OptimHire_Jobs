@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Job Analytics Dashboard',
   description: 'Modern job analytics dashboard with real-time statistics',
+  icons: {
+    icon: '/favicon.png',
+  },
 }
 
 export default function RootLayout({
@@ -16,7 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} dark`}>
+        <div className="min-h-screen bg-background text-foreground">
+          <main className="min-h-screen px-6 py-8">
+            {children}
+          </main>
+        </div>
+      </body>
     </html>
   )
 }

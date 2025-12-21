@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SummaryCards } from '@/components/dashboard/summary-cards';
@@ -34,7 +34,8 @@ export default function DashboardPage() {
   const [dailyDays, setDailyDays] = useState<number>(7);
 
   // State for board/date filters
-  const [selectedDate, setSelectedDate] = useState('');
+  // Default selected date: today's date in YYYY-MM-DD (so the date picker defaults to today)
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [selectedBoard, setSelectedBoard] = useState('');
   const [availableBoards, setAvailableBoards] = useState<string[]>([]);
 
@@ -50,6 +51,9 @@ export default function DashboardPage() {
 
   // Days filter for board chart (default to 7 days)
   const [boardDays, setBoardDays] = useState<number>(7);
+
+  // Track if initial date fetch has been done to prevent duplicate calls
+  const initialDateFetchDone = useRef(false);
 
 
   // Fetch summary data
@@ -129,6 +133,13 @@ export default function DashboardPage() {
       return;
     }
 
+    // Skip if this is the initial mount and we just initialized selectedDate to today
+    if (!initialDateFetchDone.current && selectedDate === new Date().toISOString().split('T')[0]) {
+      initialDateFetchDone.current = true;
+      // Optionally, comment out return if you want to fetch on initial mount
+      return;
+    }
+
     const fetchByDate = async () => {
       try {
         setBoardDateLoading(true);
@@ -188,7 +199,7 @@ export default function DashboardPage() {
 
         {/* Section 1: Summary Cards */}
         <div>
-          <SummaryCards data={summary} isLoading={summaryLoading} />
+          <SummaryCards data={summary} isLoading={summaryLoading} availableBoards={availableBoards.length} />
           {summaryError && (
             <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md">
               {summaryError}
