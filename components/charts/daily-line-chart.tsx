@@ -1,8 +1,9 @@
 'use client';
 
 import {
-  LineChart,
+  ComposedChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -17,6 +18,47 @@ interface DailyLineChartProps {
 }
 
 export function DailyLineChart({ data }: DailyLineChartProps) {
+  // Calculate dynamic Y-axis domain with padding for Total Jobs
+  const calculateTotalAxisDomain = () => {
+    if (!data || data.length === 0) return [1, 100];
+    
+    let minValue = Infinity;
+    let maxValue = 0;
+    
+    data.forEach((item) => {
+      const total = item.total ?? 0;
+      minValue = Math.min(minValue, total);
+      maxValue = Math.max(maxValue, total);
+    });
+    
+    minValue = isFinite(minValue) ? minValue : 1;
+    const padding = Math.max((maxValue - minValue) * 0.1, 10);
+    
+    return [Math.max(minValue - padding, 1), maxValue + padding];
+  };
+
+  // Calculate dynamic Y-axis domain with padding for Active Jobs
+  const calculateActiveAxisDomain = () => {
+    if (!data || data.length === 0) return [1, 100];
+    
+    let minValue = Infinity;
+    let maxValue = 0;
+    
+    data.forEach((item) => {
+      const active = item.active ?? 0;
+      minValue = Math.min(minValue, active);
+      maxValue = Math.max(maxValue, active);
+    });
+    
+    minValue = isFinite(minValue) ? minValue : 1;
+    const padding = Math.max((maxValue - minValue) * 0.1, 10);
+    
+    return [Math.max(minValue - padding, 1), maxValue + padding];
+  };
+
+  const totalAxisDomain = calculateTotalAxisDomain();
+  const activeAxisDomain = calculateActiveAxisDomain();
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -34,7 +76,7 @@ export function DailyLineChart({ data }: DailyLineChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <LineChart
+      <ComposedChart
         data={data}
         margin={{ top: 8, right: 24, left: 8, bottom: 6 }}
       >
@@ -46,9 +88,23 @@ export function DailyLineChart({ data }: DailyLineChartProps) {
           stroke="hsl(var(--muted-foreground))"
         />
         <YAxis
+          yAxisId="left"
+          scale="log"
+          domain={totalAxisDomain}
           tickFormatter={formatNumber}
           className="text-xs"
-          stroke="hsl(var(--muted-foreground))"
+          stroke="hsl(188, 100%, 50%)"
+          label={{ value: 'Total Jobs', angle: -90, position: 'insideLeft' }}
+        />
+        <YAxis
+          yAxisId="right"
+          orientation="right"
+          scale="log"
+          domain={activeAxisDomain}
+          tickFormatter={formatNumber}
+          className="text-xs"
+          stroke="hsl(96, 100%, 50%)"
+          label={{ value: 'Active Jobs', angle: 90, position: 'insideRight' }}
         />
         <Tooltip
           contentStyle={{
@@ -64,7 +120,19 @@ export function DailyLineChart({ data }: DailyLineChartProps) {
         />
         <Legend verticalAlign="top" height={30} />
 
+        <Area
+          yAxisId="right"
+          type="monotone"
+          dataKey="active"
+          fill="hsl(96, 100%, 50%)"
+          stroke="hsl(96, 100%, 50%)"
+          fillOpacity={0.3}
+          strokeWidth={2}
+          name="Active Jobs"
+          animationDuration={400}
+        />
         <Line
+          yAxisId="left"
           type="monotone"
           dataKey="total"
           stroke="hsl(188, 100%, 50%)"
@@ -74,17 +142,7 @@ export function DailyLineChart({ data }: DailyLineChartProps) {
           name="Total Jobs"
           animationDuration={400}
         />
-        <Line
-          type="monotone"
-          dataKey="active"
-          stroke="hsl(96, 100%, 50%)"
-          strokeWidth={2}
-          dot={false}
-          activeDot={{ r: 4 }}
-          name="Active Jobs"
-          animationDuration={400}
-        />
-      </LineChart>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }

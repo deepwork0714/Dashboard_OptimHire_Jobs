@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SummaryResponse } from '@/lib/api';
+import { SummaryResponse, DailyResponse, getDaily } from '@/lib/api';
 import { TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface SummaryCardsProps {
   data: SummaryResponse | null;
@@ -12,6 +13,44 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ data, isLoading, availableBoards = 0 }: SummaryCardsProps) {
+  const [dailyData, setDailyData] = useState<DailyResponse | null>(null);
+  const [riseRate, setRiseRate] = useState<number>(100);
+
+  // Calculate rise rate from daily data
+  useEffect(() => {
+    const calculateRiseRate = async () => {
+      try {
+        const daily = await getDaily(2); // Get last 2 days of data
+        setDailyData(daily);
+        
+        if (daily.data.length >= 2) {
+          // Get the last two days : current day and previous day
+          const sortedData = [...daily.data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .slice(-2);
+
+          const previousTotal = sortedData[0].total;
+          const currentTotal = sortedData[1].total;
+          console.log('Previous Total:', previousTotal, 'Current Total:', currentTotal);
+          if (previousTotal > 0) {
+            const rate = ((currentTotal - previousTotal) / previousTotal) * 100;
+            setRiseRate(rate);
+          } else {
+            setRiseRate(100); // Default to 100% if previous was 0
+          }
+        } else {
+          setRiseRate(100); // Default to 100% if only 1 day of data
+        }
+      } catch (error) {
+        console.error('Error calculating rise rate:', error);
+        setRiseRate(100); // Default to 100% on error
+      }
+    };
+
+    if (data) {
+      calculateRiseRate();
+    }
+  }, [data]);
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-3">
@@ -53,7 +92,11 @@ export function SummaryCards({ data, isLoading, availableBoards = 0 }: SummaryCa
           </div>
           <div className="text-right">
             <div className="text-3xl font-extrabold text-primary">{data.total_jobs.toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground/70">As of <span className="text-accent">{new Date(data.latest_date).toLocaleDateString()}</span></div>
+            <div className="text-xs text-muted-foreground/70">
+              Rise Rate: <span className={riseRate >= 0 ? 'text-green-500' : 'text-red-500'}>
+                {riseRate >= 0 ? '+' : ''}{riseRate.toFixed(2)}%
+              </span>
+            </div>
           </div>
         </CardHeader>
       </Card>

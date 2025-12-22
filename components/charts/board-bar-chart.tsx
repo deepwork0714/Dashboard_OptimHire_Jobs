@@ -18,6 +18,25 @@ interface BoardBarChartProps {
 }
 
 export function BoardBarChart({ data }: BoardBarChartProps) {
+  // Calculate dynamic Y-axis domain with padding
+  const calculateYAxisDomain = () => {
+    if (!data || data.length === 0) return [0, 100];
+    
+    let maxValue = 0;
+    data.forEach((item) => {
+      const total = (item.active ?? 0) + (item.inactive ?? 0);
+      maxValue = Math.max(maxValue, total);
+    });
+    
+    const padding = Math.max(maxValue * 0.1, 10);
+    const minValue = Math.max(0, 0 - padding);
+    const max = maxValue + padding;
+    
+    return [minValue, max];
+  };
+
+  const yAxisDomain = calculateYAxisDomain();
+
   const formatNumber = (value: number) => {
     if (value >= 1000000) {
       return `${(value / 1000000).toFixed(1)}M`;
@@ -52,6 +71,7 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
           stroke="hsl(var(--muted-foreground))"
         />
         <YAxis
+          domain={yAxisDomain}
           tickFormatter={formatNumber}
           className="text-xs"
           stroke="hsl(var(--muted-foreground))"
