@@ -53,7 +53,7 @@ export function SummaryCards({ data, isLoading, availableBoards = 0 }: SummaryCa
           </div>
           <div className="text-right">
             <div className="text-3xl font-extrabold text-primary">{data.total_jobs.toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground/70">Growth <span className="text-accent">+{(data.total_change ?? 0).toFixed(1)}%</span></div>
+            <div className="text-xs text-muted-foreground/70">As of <span className="text-accent">{new Date(data.latest_date).toLocaleDateString()}</span></div>
           </div>
         </CardHeader>
       </Card>
