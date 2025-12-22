@@ -133,13 +133,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Skip if this is the initial mount and we just initialized selectedDate to today
-    if (!initialDateFetchDone.current && selectedDate === new Date().toISOString().split('T')[0]) {
-      initialDateFetchDone.current = true;
-      // Optionally, comment out return if you want to fetch on initial mount
-      return;
-    }
-
     const fetchByDate = async () => {
       try {
         setBoardDateLoading(true);
