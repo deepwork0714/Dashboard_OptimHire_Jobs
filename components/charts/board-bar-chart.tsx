@@ -76,20 +76,8 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
           className="text-xs"
           stroke="hsl(var(--muted-foreground))"
         />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: 'hsl(var(--card))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: 'var(--radius)',
-            boxShadow: '0 6px 18px rgba(0,0,0,0.25)'
-          }}
-          formatter={(value: number, name: string, props: any) => {
-            const payload = props && props.payload ? props.payload : {};
-            const total = payload.count ?? ((payload.active ?? 0) + (payload.inactive ?? 0));
-            const pct = total > 0 ? (value / total) * 100 : 0;
-            return [`${value.toLocaleString()} (${pct.toFixed(1)}%)`, name];
-          }}
-        />
+        <Tooltip content={<BarCustomTooltip />} />
+
         <Legend verticalAlign="top" height={28} />
 
         <Bar
@@ -138,6 +126,38 @@ export function BoardBarChart({ data }: BoardBarChartProps) {
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+  );
+}
+
+function BarCustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload || payload.length === 0) return null;
+  const entries = payload.map((p: any) => ({ name: p.name, value: p.value ?? 0, color: p.color || p.fill }));
+  const total = entries.reduce((s: number, e: any) => s + (e.value || 0), 0);
+  return (
+    <div
+      style={{
+        backgroundColor: 'hsl(var(--card))',
+        border: '1px solid hsl(var(--border))',
+        borderRadius: 'var(--radius)',
+        padding: 8,
+        boxShadow: '0 6px 18px rgba(0,0,0,0.25)'
+      }}
+    >
+      <div style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>{label}</div>
+      <div style={{ marginTop: 6 }}>
+        {entries.map((e: any) => (
+          <div key={e.name} style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+            <div style={{ color: e.color, fontWeight: 600 }}>{e.name + ": "}</div>
+            <div>{e.value.toLocaleString()}</div>
+          </div>
+        ))}
+        <hr style={{ border: "none", borderTop: "2px solid hsl(var(--border))", margin: "8px 0" }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+          <div style={{ fontWeight: 600 }}>{"Total : "}</div>
+          <div>{total.toLocaleString()}</div>
+        </div>
+      </div>
+    </div>
   );
 }
 

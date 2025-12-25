@@ -1,9 +1,8 @@
 'use client';
 
 import {
-  ComposedChart,
+  LineChart,
   Line,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -16,9 +15,10 @@ import { ByBoardDataPoint } from '@/lib/api';
 interface BoardLineChartProps {
   data: ByBoardDataPoint[];
   boardName: string;
+  mode?: 'total' | 'active';
 }
 
-export function BoardLineChart({ data, boardName }: BoardLineChartProps) {
+export function BoardLineChart({ data, boardName, mode = 'total' }: BoardLineChartProps) {
   // Calculate dynamic Y-axis domain with padding for Total Jobs
   const calculateTotalAxisDomain = () => {
     if (!data || data.length === 0) return [1, 100];
@@ -77,7 +77,7 @@ export function BoardLineChart({ data, boardName }: BoardLineChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <ComposedChart
+      <LineChart
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
@@ -89,62 +89,66 @@ export function BoardLineChart({ data, boardName }: BoardLineChartProps) {
           stroke="hsl(var(--muted-foreground))"
         />
         <YAxis
-          yAxisId="left"
-          scale="log"
-          domain={totalAxisDomain}
+          domain={mode === 'total' ? totalAxisDomain : activeAxisDomain}
           tickFormatter={formatNumber}
           className="text-xs"
-          stroke="hsl(var(--primary))"
-          label={{ value: 'Total Jobs', angle: -90, position: 'insideLeft' }}
+          stroke="hsl(var(--muted-foreground))"
+          label={{ value: mode === 'total' ? 'Total Jobs' : 'Active Jobs', angle: -90, position: 'insideLeft' }}
         />
-        <YAxis
-          yAxisId="right"
-          orientation="right"
-          scale="log"
-          domain={activeAxisDomain}
-          tickFormatter={formatNumber}
-          className="text-xs"
-          stroke="hsl(142, 76%, 36%)"
-          label={{ value: 'Active Jobs', angle: 90, position: 'insideRight' }}
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: 'hsl(var(--card))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: 'var(--radius)',
-          }}
-          labelFormatter={(label) => formatDate(label)}
-          formatter={(value: number) => [
-            value.toLocaleString(),
-            '',
-          ]}
-        />
+        <Tooltip content={<CustomTooltip />} />
         <Legend />
 
-        <Area
-          yAxisId="right"
-          type="monotone"
-          dataKey="active"
-          fill="hsl(142, 76%, 36%)"
-          stroke="hsl(142, 76%, 36%)"
-          fillOpacity={0.3}
-          strokeWidth={2}
-          name="Active Jobs"
-          animationDuration={400}
-        />
-        <Line
-          yAxisId="left"
-          type="monotone"
-          dataKey="total"
-          stroke="hsl(var(--primary))"
-          strokeWidth={2}
-          name="Total Jobs"
-          dot={{ r: 4 }}
-          activeDot={{ r: 6 }}
-          animationDuration={500}
-        />
-      </ComposedChart>
+        {mode === 'total' ? (
+          <Line
+            key={`line-total-${data.length}`}
+            isAnimationActive={true}
+            animationBegin={0}
+            animationDuration={500}
+            type="monotone"
+            dataKey="total"
+            stroke="hsl(var(--primary))"
+            strokeWidth={2}
+            name="Total Jobs"
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+          />
+        ) : (
+          <Line
+            key={`line-active-${data.length}`}
+            isAnimationActive={true}
+            animationBegin={0}
+            animationDuration={500}
+            type="monotone"
+            dataKey="active"
+            stroke="hsl(142, 76%, 36%)"
+            strokeWidth={2}
+            name="Active Jobs"
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+          />
+        )}
+      </LineChart>
     </ResponsiveContainer>
+  );
+}
+
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload || payload.length === 0) return null;
+  const item = payload[0];
+  const value = item?.value ?? 0;
+  return (
+    <div
+      style={{
+        backgroundColor: 'hsl(var(--card))',
+        border: '1px solid hsl(var(--border))',
+        borderRadius: 'var(--radius)',
+        padding: 8,
+        boxShadow: '0 6px 18px rgba(0,0,0,0.25)'
+      }}
+    >
+      <div style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>{formatDate(label)}</div>
+      <div style={{ marginTop: 6, fontSize: 16, fontWeight: 600, color: item?.color || 'hsl(var(--primary))' }}>{value.toLocaleString()}</div>
+    </div>
   );
 }
 

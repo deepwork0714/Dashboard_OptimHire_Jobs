@@ -35,7 +35,7 @@ export function JobBoardFilters({
         <CardTitle className="text-sm">Filters</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-3 mb-2">
+        <div className="grid gap-4 md:grid-cols-2 mb-2">
           <div>
             <Label htmlFor="date-filter">Filter by Date</Label>
             <Input
@@ -66,16 +66,6 @@ export function JobBoardFilters({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="flex items-end">
-            <button
-              type="button"
-              className="w-full rounded-md bg-accent px-3 py-2 text-sm text-accent-foreground"
-              onClick={() => onDateChange('')}
-            >
-              Clear Date
-            </button>
           </div>
         </div>
       </CardContent>

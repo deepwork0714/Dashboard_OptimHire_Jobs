@@ -52,6 +52,10 @@ export default function DashboardPage() {
   // Days filter for board chart (default to 7 days)
   const [boardDays, setBoardDays] = useState<number>(7);
 
+  // Chart display mode toggles: 'total'|'active' (no 'both')
+  const [dailyChartMode, setDailyChartMode] = useState<'total'|'active'>('total');
+  const [boardChartMode, setBoardChartMode] = useState<'total'|'active'>('total');
+
   // Track if initial date fetch has been done to prevent duplicate calls
   const initialDateFetchDone = useRef(false);
 
@@ -222,6 +226,8 @@ export default function DashboardPage() {
                   <option value={14}>Last 14 days</option>
                 </select>
 
+
+
                 <button
                   type="button"
                   className="rounded-md border bg-background px-3 py-1 text-sm hover:bg-accent/10"
@@ -241,6 +247,24 @@ export default function DashboardPage() {
                 >
                   Save as JSON
                 </button>
+
+                {/* Mode toggle (Total / Active) - keep same height/style as other controls */}
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    className={`rounded-md border bg-background px-2 py-1 text-sm ${dailyChartMode === 'total' ? 'ring-1 ring-accent/30' : ''}`}
+                    onClick={() => setDailyChartMode('total')}
+                  >
+                    Total
+                  </button>
+                  <button
+                    type="button"
+                    className={`rounded-md border bg-background px-2 py-1 text-sm ${dailyChartMode === 'active' ? 'ring-1 ring-accent/30' : ''}`}
+                    onClick={() => setDailyChartMode('active')}
+                  >
+                    Active
+                  </button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -252,7 +276,7 @@ export default function DashboardPage() {
                 {dailyError}
               </div>
             ) : dailyData && dailyData.data.length > 0 ? (
-              <DailyLineChart data={dailyData.data} />
+              <DailyLineChart data={dailyData.data} mode={dailyChartMode} />
             ) : (
               <div className="flex items-center justify-center h-[400px] text-muted-foreground">
                 No daily data available
@@ -283,6 +307,8 @@ export default function DashboardPage() {
                   <option value={14}>Last 14 days</option>
                 </select>
 
+
+
                 <button
                   type="button"
                   className="rounded-md border bg-background px-3 py-1 text-sm hover:bg-accent/10"
@@ -302,6 +328,24 @@ export default function DashboardPage() {
                 >
                   Save as JSON
                 </button>
+
+                {/* Mode toggle (Total / Active) - keep same height/style as other controls */}
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    className={`rounded-md border bg-background px-2 py-1 text-sm ${boardChartMode === 'total' ? 'ring-1 ring-accent/30' : ''}`}
+                    onClick={() => setBoardChartMode('total')}
+                  >
+                    Total
+                  </button>
+                  <button
+                    type="button"
+                    className={`rounded-md border bg-background px-2 py-1 text-sm ${boardChartMode === 'active' ? 'ring-1 ring-accent/30' : ''}`}
+                    onClick={() => setBoardChartMode('active')}
+                  >
+                    Active
+                  </button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -335,7 +379,7 @@ export default function DashboardPage() {
                   {boardError}
                 </div>
               ) : boardData.data.length > 0 ? (
-                <BoardLineChart data={boardData.data} boardName={boardData.board} />
+                <BoardLineChart data={boardData.data} boardName={boardData.board} mode={boardChartMode} />
               ) : (
                 <div className="flex items-center justify-center h-[400px] text-muted-foreground">
                   No data available for selected board
