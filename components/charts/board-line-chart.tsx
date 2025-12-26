@@ -18,6 +18,11 @@ interface BoardLineChartProps {
   mode?: 'total' | 'active';
 }
 
+const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
 export function BoardLineChart({ data, boardName, mode = 'total' }: BoardLineChartProps) {
   // Calculate dynamic Y-axis domain with padding for Total Jobs
   const calculateTotalAxisDomain = () => {
@@ -59,11 +64,6 @@ export function BoardLineChart({ data, boardName, mode = 'total' }: BoardLineCha
 
   const totalAxisDomain = calculateTotalAxisDomain();
   const activeAxisDomain = calculateActiveAxisDomain();
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
 
   const formatNumber = (value: number) => {
     if (value >= 1000000) {
@@ -151,4 +151,3 @@ function CustomTooltip({ active, payload, label }: any) {
     </div>
   );
 }
-
